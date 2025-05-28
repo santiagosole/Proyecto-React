@@ -1,5 +1,6 @@
 import React from "react";
-import logo from "../../assets/logo.jpg";
+import { Link } from "react-router-dom";
+import logo from "../../assets//logo.jpg";
 
 function NavBar() {
   return (
@@ -17,9 +18,9 @@ function NavBar() {
       }}
     >
       <div className="d-flex align-items-center w-100 px-0">
-        <a
+        <Link
           className="navbar-brand m-0 p-0"
-          href="#"
+          to="/"
           style={{ display: "flex", alignItems: "center" }}
         >
           <img
@@ -32,13 +33,18 @@ function NavBar() {
               paddingLeft: "0px",
             }}
           />
-        </a>
+        </Link>
         <div className="ms-auto me-3 d-flex">
-  <a className="nav-link mx-2" href="#">Inicio</a>
-  <a className="nav-link mx-2" href="#">Productos</a>
-  <a className="nav-link mx-2" href="#">Contacto</a>
-</div>
-
+          <Link className="nav-link mx-2" to="/">
+            Inicio
+          </Link>
+          <Link className="nav-link mx-2" to="/productos">
+            Productos
+          </Link>
+          <Link className="nav-link mx-2" to="/contacto">
+            Contacto
+          </Link>
+        </div>
       </div>
     </nav>
   );
