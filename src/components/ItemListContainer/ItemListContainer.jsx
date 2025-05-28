@@ -1,30 +1,55 @@
-import React, { useEffect, useState } from "react";
-import { getProductos } from "../../mockProductos";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getProductos, getProductosByCategory } from "../../mockProductos";
 
 function ItemListContainer({ greeting }) {
-  const [items, setItems] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { categoryId } = useParams();
 
   useEffect(() => {
-    getProductos().then((data) => setItems(data));
-  }, []);
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const data = categoryId
+          ? await getProductosByCategory(categoryId)
+          : await getProductos();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al cargar productos", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [categoryId]);
+
+  if (loading) return <p>Cargando productos...</p>;
 
   return (
-    <div className="container mt-5 pt-5">
-      <h2>{greeting}</h2>
-      <div className="row">
-        {items.map((prod) => (
-          <div key={prod.id} className="col-md-4 mb-3">
-            <div className="card">
-              <img
-                src={prod.imageUrl}
-                className="card-img-top"
-                alt={prod.name}
-              />
-              <div className="card-body">
-                <h5 className="card-title">{prod.name}</h5>
-                <p className="card-text">${prod.price}</p>
-              </div>
-            </div>
+    <div style={{ padding: "2rem" }}>
+      {greeting && <h2>{greeting}</h2>}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
+        {productos.map((prod) => (
+          <div
+            key={prod.id}
+            style={{
+              border: "1px solid #ccc",
+              padding: "1rem",
+              width: "200px",
+              textAlign: "center",
+              borderRadius: "8px",
+              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+            }}
+          >
+            <img
+              src={prod.imageUrl}
+              alt={prod.name}
+              style={{ width: "100%", height: "auto" }}
+            />
+            <h4>{prod.name}</h4>
+            <p>${prod.price}</p>
           </div>
         ))}
       </div>

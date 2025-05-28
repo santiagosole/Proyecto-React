@@ -5,7 +5,7 @@ const productos = [
     category: "ropa",
     description: "Remera azul de algodón 100%",
     price: 1500,
-    imageUrl: "https://via.placeholder.com/150?text=Remera+Azul",
+    imageUrl: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
   },
   {
     id: "2",
@@ -13,7 +13,7 @@ const productos = [
     category: "ropa",
     description: "Pantalón negro de jean",
     price: 3000,
-    imageUrl: "https://via.placeholder.com/150?text=Pantalon+Negro",
+    imageUrl: "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
   },
   {
     id: "3",
@@ -21,7 +21,7 @@ const productos = [
     category: "calzado",
     description: "Zapatillas deportivas para correr",
     price: 5000,
-    imageUrl: "https://via.placeholder.com/150?text=Zapatillas+Running",
+    imageUrl: "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_.jpg",
   },
   {
     id: "4",
@@ -29,7 +29,7 @@ const productos = [
     category: "accesorios",
     description: "Gorra ajustable negra",
     price: 800,
-    imageUrl: "https://via.placeholder.com/150?text=Gorra+Negra",
+    imageUrl: "https://fakestoreapi.com/img/71HblAHs5xL._AC_UY879_-2.jpg",
   },
 ];
 
