@@ -1,5 +1,3 @@
-// src/mockProductos.js
-
 const productos = [
   {
     id: "1",

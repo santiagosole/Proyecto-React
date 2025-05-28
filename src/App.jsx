@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import NavBar from "./components/NavBar/NavBar";
 import ItemListContainer from "./components/ItemListContainer/ItemListContainer";
-import ItemDetailContainer from "./components/ItemDetailContainer.jsx/ItemDetailContainer";
+import ItemDetailContainer from "./components/ItemDetailContainer/ItemDetailContainer";
 import NotFound from "./components/NotFound/NotFound";
 import Contacto from "./components/Contacto/Contacto";
 
