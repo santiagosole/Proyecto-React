@@ -1,12 +1,11 @@
-import React from "react";
-
 function Contacto() {
   return (
-    <div>
+    <div style={{ paddingTop: "100px", textAlign: "center" }}>
       <h2>Contacto</h2>
-      <p>Podés escribirnos a contacto@mitienda.com</p>
+      <p>Escribinos a: contacto@mi-tienda.com</p>
     </div>
   );
 }
 
 export default Contacto;
+

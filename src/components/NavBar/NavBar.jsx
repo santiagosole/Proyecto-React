@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import logo from "../../assets//logo.jpg";
+import logo from "../../assets/logo.jpg";
+import { CartContext } from "../../context/CartContext";
 
 function NavBar() {
+  const { totalQuantity } = useContext(CartContext);
+
   return (
     <nav
       className="navbar navbar-expand-lg navbar-light bg-light"
@@ -34,7 +37,8 @@ function NavBar() {
             }}
           />
         </Link>
-        <div className="ms-auto me-3 d-flex">
+
+        <div className="ms-auto me-3 d-flex align-items-center">
           <Link className="nav-link mx-2" to="/">
             Inicio
           </Link>
@@ -43,6 +47,9 @@ function NavBar() {
           </Link>
           <Link className="nav-link mx-2" to="/contacto">
             Contacto
+          </Link>
+          <Link className="nav-link mx-2" to="/cart">
+            🛒 Carrito ({totalQuantity()})
           </Link>
         </div>
       </div>
