@@ -2,7 +2,14 @@ import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
 
 function Cart() {
-  const { cart, removeItem, clearCart, total } = useContext(CartContext);
+  const {
+    cart,
+    removeItem,
+    clearCart,
+    total,
+    increaseQuantity,
+    decreaseQuantity,
+  } = useContext(CartContext);
 
   if (cart.length === 0) {
     return <p>El carrito está vacío.</p>;
@@ -33,7 +40,11 @@ function Cart() {
             />
             <div>
               <h4>{prod.title || prod.name}</h4>
-              <p>Cantidad: {prod.cantidad}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <button onClick={() => decreaseQuantity(prod.id)}>-</button>
+                <span>{prod.cantidad}</span>
+                <button onClick={() => increaseQuantity(prod.id)}>+</button>
+              </div>
               <p>Precio unitario: ${prod.price.toLocaleString("es-AR")}</p>
               <p>
                 Subtotal: ${(prod.price * prod.cantidad).toLocaleString("es-AR")}
