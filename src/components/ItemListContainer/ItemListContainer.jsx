@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { getProductos, getProductosByCategory } from "../../mockProductos";
+import { CartContext } from "../../context/CartContext";
 
 function ItemListContainer({ greeting }) {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const { categoryId } = useParams();
+
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     setLoading(true);
@@ -50,6 +53,7 @@ function ItemListContainer({ greeting }) {
             />
             <h4>{prod.name}</h4>
             <p>${prod.price}</p>
+            <button onClick={() => addToCart(prod, 1)}>Agregar al carrito</button>
           </div>
         ))}
       </div>
