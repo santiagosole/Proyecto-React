@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { CartContext } from "../../context/CartContext";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 
-function ItemListContainer({ greeting }) {
+function ItemListContainer() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { categoriaId } = useParams();
+
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     setLoading(true);
@@ -13,40 +14,26 @@ function ItemListContainer({ greeting }) {
     const db = getFirestore();
     const productosRef = collection(db, "items");
 
-    const fetchData = async () => {
-      try {
-        let q;
-
-        if (categoriaId) {
-          q = query(productosRef, where("category", "==", categoriaId));
-        } else {
-          q = query(productosRef);
-        }
-
-        const querySnapshot = await getDocs(q);
-        const productosFirebase = querySnapshot.docs.map(doc => ({
+    getDocs(productosRef)
+      .then((querySnapshot) => {
+        const productosData = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
         }));
-
-        setProductos(productosFirebase);
-      } catch (error) {
-        console.error("Error al cargar productos desde Firestore:", error);
-      } finally {
+        setProductos(productosData);
+      })
+      .catch((error) => {
+        console.error("Error al cargar productos: ", error);
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [categoriaId]);
+      });
+  }, []);
 
   if (loading) return <p>Cargando productos...</p>;
 
-  if (productos.length === 0) return <p>No se encontraron productos.</p>;
-
   return (
     <div style={{ padding: "2rem" }}>
-      {greeting && <h2>{greeting}</h2>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
         {productos.map((prod) => (
           <div
@@ -67,7 +54,7 @@ function ItemListContainer({ greeting }) {
             />
             <h4>{prod.name}</h4>
             <p>${prod.price}</p>
-            {}
+            <button onClick={() => addToCart(prod, 1)}>Agregar al carrito</button>
           </div>
         ))}
       </div>
