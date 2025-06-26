@@ -17,7 +17,6 @@ function Cart() {
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -184,3 +183,4 @@ function Cart() {
 }
 
 export default Cart;
+
