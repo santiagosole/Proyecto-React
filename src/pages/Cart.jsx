@@ -1,5 +1,7 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 function Cart() {
   const {
@@ -10,6 +12,69 @@ function Cart() {
     increaseQuantity,
     decreaseQuantity,
   } = useContext(CartContext);
+
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const validarFormulario = () => {
+    if (!nombre.trim() || !email.trim() || !telefono.trim()) {
+      setError("Por favor, completa todos los campos del formulario.");
+      return false;
+    }
+    return true;
+  };
+
+  const confirmarCompra = async () => {
+    setError("");
+    setSuccessMsg("");
+
+    if (cart.length === 0) {
+      setError("El carrito está vacío.");
+      return;
+    }
+
+    if (!validarFormulario()) {
+      return;
+    }
+
+    setLoading(true);
+
+    const comprador = { nombre, email, telefono };
+    const venta = {
+      comprador,
+      items: cart.map(({ id, title, name, cantidad, price }) => ({
+        id,
+        title: title || name,
+        cantidad,
+        price,
+      })),
+      fecha: Timestamp.fromDate(new Date()),
+      total: total(),
+      estado: "Pendiente",
+    };
+
+    try {
+      const ventasCollection = collection(db, "ventas");
+      const docRef = await addDoc(ventasCollection, venta);
+
+      setSuccessMsg(`Compra registrada con éxito. ID: ${docRef.id}`);
+      clearCart();
+
+      setNombre("");
+      setEmail("");
+      setTelefono("");
+    } catch (e) {
+      console.error("Error al registrar la compra:", e);
+      setError("Error al registrar la compra, intente nuevamente.");
+    }
+
+    setLoading(false);
+  };
 
   if (cart.length === 0) {
     return <p>El carrito está vacío.</p>;
@@ -55,7 +120,65 @@ function Cart() {
         ))}
       </ul>
       <h3>Total a pagar: ${total().toLocaleString("es-AR")} ARS</h3>
-      <button onClick={clearCart}>Vaciar carrito</button>
+
+      <h3>Datos del comprador</h3>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          confirmarCompra();
+        }}
+        style={{ marginBottom: "1rem" }}
+      >
+        <div>
+          <label>
+            Nombre completo:
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              disabled={loading}
+              required
+              style={{ marginLeft: "1rem" }}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Email:
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              required
+              style={{ marginLeft: "1rem" }}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Teléfono:
+            <input
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              disabled={loading}
+              required
+              style={{ marginLeft: "1rem" }}
+            />
+          </label>
+        </div>
+        <button type="submit" disabled={loading} style={{ marginTop: "1rem" }}>
+          {loading ? "Procesando compra..." : "Confirmar compra"}
+        </button>
+      </form>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
+
+      <button onClick={clearCart} disabled={loading}>
+        Vaciar carrito
+      </button>
     </div>
   );
 }
