@@ -22,7 +22,7 @@ function Cart() {
 
   const validarFormulario = () => {
     if (!nombre.trim() || !email.trim() || !telefono.trim()) {
-      setError("Por favor, completa todos los campos del formulario.");
+      setError("Por favor, completá todos los campos del formulario.");
       return false;
     }
     return true;
@@ -37,9 +37,7 @@ function Cart() {
       return;
     }
 
-    if (!validarFormulario()) {
-      return;
-    }
+    if (!validarFormulario()) return;
 
     setLoading(true);
 
@@ -61,126 +59,186 @@ function Cart() {
       const ventasCollection = collection(db, "ventas");
       const docRef = await addDoc(ventasCollection, venta);
 
-      setSuccessMsg(`Compra registrada con éxito. ID: ${docRef.id}`);
-      clearCart();
+      setSuccessMsg(`¡Gracias por su compra, ${nombre}! 🛍️
+Tu ID de pedido es: ${docRef.id}
+Gracias por confiar en nosotros ❤️`);
 
+      clearCart();
       setNombre("");
       setEmail("");
       setTelefono("");
     } catch (e) {
       console.error("Error al registrar la compra:", e);
-      setError("Error al registrar la compra, intente nuevamente.");
+      setError("Ocurrió un error al registrar la compra. Intenta de nuevo.");
     }
 
     setLoading(false);
   };
 
-  if (cart.length === 0) {
+  if (cart.length === 0 && !successMsg) {
     return <p>El carrito está vacío.</p>;
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
       <h2>Carrito de compras</h2>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {cart.map((prod) => (
-          <li
-            key={prod.id}
+
+      {successMsg ? (
+        <div
+          style={{
+            backgroundColor: "#d4edda",
+            padding: "1rem",
+            borderRadius: "8px",
+            color: "#155724",
+            marginTop: "1rem",
+            whiteSpace: "pre-line",
+            fontSize: "1.1rem",
+            textAlign: "center",
+          }}
+        >
+          {successMsg}
+        </div>
+      ) : (
+        <>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {cart.map((prod) => (
+              <li
+                key={prod.id}
+                style={{
+                  marginBottom: "1.5rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  boxShadow: "0 0 10px rgba(0,0,0,0.05)",
+                }}
+              >
+                <img
+                  src={prod.imageUrl}
+                  alt={prod.title || prod.name}
+                  style={{ width: "90px", borderRadius: "6px" }}
+                />
+                <div style={{ flex: 1 }}>
+                  <h4>{prod.title || prod.name}</h4>
+                  <p>Precio: ${prod.price.toLocaleString("es-AR")}</p>
+                  <div>
+                    <button onClick={() => decreaseQuantity(prod.id)}>-</button>
+                    <span style={{ margin: "0 10px" }}>{prod.cantidad}</span>
+                    <button onClick={() => increaseQuantity(prod.id)}>+</button>
+                  </div>
+                  <p>
+                    Subtotal: $
+                    {(prod.price * prod.cantidad).toLocaleString("es-AR")}
+                  </p>
+                  <button onClick={() => removeItem(prod.id)}>Eliminar</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <h3 style={{ marginTop: "2rem" }}>
+            Total: ${total().toLocaleString("es-AR")} ARS
+          </h3>
+
+          <h4 style={{ marginTop: "2rem" }}>Datos del comprador</h4>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              confirmarCompra();
+            }}
             style={{
-              marginBottom: "2rem",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "1rem",
               display: "flex",
-              alignItems: "center",
-              gap: "1.5rem",
-              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+              flexDirection: "column",
+              gap: "1rem",
+              marginTop: "1rem",
+              backgroundColor: "#f9f9f9",
+              padding: "1rem",
+              borderRadius: "8px",
+              boxShadow: "0 0 8px rgba(0,0,0,0.05)",
             }}
           >
-            <img
-              src={prod.imageUrl}
-              alt={prod.title || prod.name}
-              style={{ width: "100px", height: "auto", borderRadius: "8px" }}
-            />
-            <div>
-              <h4>{prod.title || prod.name}</h4>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <button onClick={() => decreaseQuantity(prod.id)}>-</button>
-                <span>{prod.cantidad}</span>
-                <button onClick={() => increaseQuantity(prod.id)}>+</button>
-              </div>
-              <p>Precio unitario: ${prod.price.toLocaleString("es-AR")}</p>
-              <p>
-                Subtotal: ${(prod.price * prod.cantidad).toLocaleString("es-AR")}
-              </p>
-              <button onClick={() => removeItem(prod.id)}>Eliminar</button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <h3>Total a pagar: ${total().toLocaleString("es-AR")} ARS</h3>
-
-      <h3>Datos del comprador</h3>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          confirmarCompra();
-        }}
-        style={{ marginBottom: "1rem" }}
-      >
-        <div>
-          <label>
-            Nombre completo:
             <input
               type="text"
+              placeholder="Nombre completo"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               disabled={loading}
               required
-              style={{ marginLeft: "1rem" }}
+              style={{
+                padding: "0.8rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+              }}
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            Email:
             <input
               type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               required
-              style={{ marginLeft: "1rem" }}
+              style={{
+                padding: "0.8rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+              }}
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            Teléfono:
             <input
               type="tel"
+              placeholder="Teléfono"
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
               disabled={loading}
               required
-              style={{ marginLeft: "1rem" }}
+              style={{
+                padding: "0.8rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+              }}
             />
-          </label>
-        </div>
-        <button type="submit" disabled={loading} style={{ marginTop: "1rem" }}>
-          {loading ? "Procesando compra..." : "Confirmar compra"}
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: "0.8rem",
+                border: "none",
+                backgroundColor: "#28a745",
+                color: "#fff",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              {loading ? "Procesando..." : "Confirmar compra"}
+            </button>
+          </form>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
+          {error && (
+            <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>
+          )}
 
-      <button onClick={clearCart} disabled={loading}>
-        Vaciar carrito
-      </button>
+          <button
+            onClick={clearCart}
+            style={{
+              marginTop: "1rem",
+              padding: "0.8rem",
+              backgroundColor: "#dc3545",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            disabled={loading}
+          >
+            Vaciar carrito
+          </button>
+        </>
+      )}
     </div>
   );
 }
 
 export default Cart;
-
