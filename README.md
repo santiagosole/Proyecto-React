@@ -24,7 +24,12 @@ Este es un proyecto de eCommerce desarrollado en **React** como parte del curso 
 
 ## ⚙️ Instalación y ejecución
 
-1. Cloná el repositorio:
    ```bash
-   git clone https://github.com/santiagosole/Proyecto-React.git
-   cd Proyecto-React
+git clone https://github.com/santiagosole/Proyecto-React.git
+ cd Proyecto-React
+
+ npm install
+
+npm run dev
+
+Abrí el navegador y accedé a http://localhost:5173
