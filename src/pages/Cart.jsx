@@ -11,6 +11,7 @@ function Cart() {
     total,
     increaseQuantity,
     decreaseQuantity,
+    stockMessage,
   } = useContext(CartContext);
 
   const [nombre, setNombre] = useState("");
@@ -83,6 +84,19 @@ Gracias por confiar en nosotros ❤️`);
     <div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
       <h2>Carrito de compras</h2>
 
+      {stockMessage && (
+        <div style={{
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+          padding: "1rem",
+          marginBottom: "1rem",
+          borderRadius: "5px",
+          border: "1px solid #f5c6cb"
+        }}>
+          {stockMessage}
+        </div>
+      )}
+
       {successMsg ? (
         <div
           style={{
@@ -100,49 +114,49 @@ Gracias por confiar en nosotros ❤️`);
         </div>
       ) : (
         <>
-          <ul style={{ 
-  listStyle: "none", 
-  padding: 0,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "1.5rem"
-}}>
-  {cart.map((prod) => (
-    <li
-      key={prod.id}
-      style={{
-        width: "100%",
-        maxWidth: "600px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "1rem",
-        display: "flex",
-        alignItems: "center",
-        gap: "1rem",
-        boxShadow: "0 0 10px rgba(0,0,0,0.05)",
-        backgroundColor: "#fff"
-      }}
-    >
-      <img
-        src={prod.imageUrl}
-        alt={prod.title || prod.name}
-        style={{ width: "90px", borderRadius: "6px" }}
-      />
-      <div style={{ flex: 1, textAlign: "left" }}>
-        <h4>{prod.title || prod.name}</h4>
-        <p>Precio: ${prod.price.toLocaleString("es-AR")}</p>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <button onClick={() => decreaseQuantity(prod.id)}>-</button>
-          <span>{prod.cantidad}</span>
-          <button onClick={() => increaseQuantity(prod.id)}>+</button>
-        </div>
-        <p>Subtotal: ${(prod.price * prod.cantidad).toLocaleString("es-AR")}</p>
-        <button onClick={() => removeItem(prod.id)}>Eliminar</button>
-      </div>
-    </li>
-  ))}
-</ul>
+          <ul style={{
+            listStyle: "none",
+            padding: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "1.5rem"
+          }}>
+            {cart.map((prod) => (
+              <li
+                key={prod.id}
+                style={{
+                  width: "100%",
+                  maxWidth: "600px",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  boxShadow: "0 0 10px rgba(0,0,0,0.05)",
+                  backgroundColor: "#fff"
+                }}
+              >
+                <img
+                  src={prod.imageUrl}
+                  alt={prod.title || prod.name}
+                  style={{ width: "90px", borderRadius: "6px" }}
+                />
+                <div style={{ flex: 1, textAlign: "left" }}>
+                  <h4>{prod.title || prod.name}</h4>
+                  <p>Precio: ${prod.price.toLocaleString("es-AR")}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <button onClick={() => decreaseQuantity(prod.id)}>-</button>
+                    <span>{prod.cantidad}</span>
+                    <button onClick={() => increaseQuantity(prod.id)}>+</button>
+                  </div>
+                  <p>Subtotal: ${(prod.price * prod.cantidad).toLocaleString("es-AR")}</p>
+                  <button onClick={() => removeItem(prod.id)}>Eliminar</button>
+                </div>
+              </li>
+            ))}
+          </ul>
 
 
           <h3 style={{ marginTop: "2rem" }}>
