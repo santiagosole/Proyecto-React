@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 function Cart() {
   const {
@@ -16,248 +16,131 @@ function Cart() {
 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [compraConfirmada, setCompraConfirmada] = useState(false);
 
-  const validarFormulario = () => {
-    if (!nombre.trim() || !email.trim() || !telefono.trim()) {
-      setError("Por favor, completá todos los campos del formulario.");
-      return false;
-    }
-    return true;
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const confirmarCompra = async () => {
-    setError("");
-    setSuccessMsg("");
-
-    if (cart.length === 0) {
-      setError("El carrito está vacío.");
-      return;
-    }
-
-    if (!validarFormulario()) return;
-
-    setLoading(true);
-
-    const comprador = { nombre, email, telefono };
-    const venta = {
-      comprador,
-      items: cart.map(({ id, title, name, cantidad, price }) => ({
-        id,
-        title: title || name,
-        cantidad,
-        price,
-      })),
-      fecha: Timestamp.fromDate(new Date()),
+    const orden = {
+      comprador: { nombre, email },
+      items: cart,
       total: total(),
-      estado: "Pendiente",
+      fecha: serverTimestamp(),
     };
 
     try {
-      const ventasCollection = collection(db, "ventas");
-      const docRef = await addDoc(ventasCollection, venta);
-
-      setSuccessMsg(`¡Gracias por su compra, ${nombre}! 🛍️
-Tu ID de pedido es: ${docRef.id}
-Gracias por confiar en nosotros ❤️`);
-
+      const docRef = await addDoc(collection(db, "ventas"), orden);
+      console.log("Compra registrada con ID:", docRef.id);
       clearCart();
+      setCompraConfirmada(true);
       setNombre("");
       setEmail("");
-      setTelefono("");
-    } catch (e) {
-      console.error("Error al registrar la compra:", e);
-      setError("Ocurrió un error al registrar la compra. Intenta de nuevo.");
+    } catch (error) {
+      console.error("Error al registrar la compra", error);
     }
-
-    setLoading(false);
   };
 
-  if (cart.length === 0 && !successMsg) {
-    return <p>El carrito está vacío.</p>;
+  if (cart.length === 0 && !compraConfirmada) {
+    return <p className="text-center mt-5">El carrito está vacío.</p>;
   }
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
-      <h2>Carrito de compras</h2>
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">Carrito de compras</h2>
 
       {stockMessage && (
-        <div style={{
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-          padding: "1rem",
-          marginBottom: "1rem",
-          borderRadius: "5px",
-          border: "1px solid #f5c6cb"
-        }}>
-          {stockMessage}
+        <div className="alert alert-danger text-center">{stockMessage}</div>
+      )}
+
+      {compraConfirmada && (
+        <div className="alert alert-success text-center fw-bold">
+          ¡Gracias por su compra y por confiar en nosotros!
         </div>
       )}
 
-      {successMsg ? (
-        <div
-          style={{
-            backgroundColor: "#d4edda",
-            padding: "1rem",
-            borderRadius: "8px",
-            color: "#155724",
-            marginTop: "1rem",
-            whiteSpace: "pre-line",
-            fontSize: "1.1rem",
-            textAlign: "center",
-          }}
-        >
-          {successMsg}
-        </div>
-      ) : (
-        <>
-          <ul style={{
-            listStyle: "none",
-            padding: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "1.5rem"
-          }}>
-            {cart.map((prod) => (
-              <li
-                key={prod.id}
-                style={{
-                  width: "100%",
-                  maxWidth: "600px",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "1rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  boxShadow: "0 0 10px rgba(0,0,0,0.05)",
-                  backgroundColor: "#fff"
-                }}
+      <ul className="list-unstyled">
+        {cart.map((prod) => (
+          <li
+            key={prod.id}
+            className="mb-4 p-3 border rounded shadow d-flex flex-column flex-md-row align-items-center justify-content-between"
+          >
+            <img
+              src={prod.imageUrl}
+              alt={prod.title || prod.name}
+              style={{ width: "100px", height: "auto", borderRadius: "8px" }}
+              className="me-3"
+            />
+            <div className="flex-grow-1">
+              <h5>{prod.title || prod.name}</h5>
+              <div className="d-flex align-items-center mb-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm me-2"
+                  onClick={() => decreaseQuantity(prod.id)}
+                >
+                  -
+                </button>
+                <span>{prod.cantidad}</span>
+                <button
+                  className="btn btn-outline-secondary btn-sm ms-2"
+                  onClick={() => increaseQuantity(prod.id)}
+                >
+                  +
+                </button>
+              </div>
+              <p className="mb-1">
+                Precio unitario: ${prod.price.toLocaleString("es-AR")}
+              </p>
+              <p>
+                Subtotal: $
+                {(prod.price * prod.cantidad).toLocaleString("es-AR")}
+              </p>
+              <button
+                className="btn btn-danger btn-sm mt-2"
+                onClick={() => removeItem(prod.id)}
               >
-                <img
-                  src={prod.imageUrl}
-                  alt={prod.title || prod.name}
-                  style={{ width: "90px", borderRadius: "6px" }}
-                />
-                <div style={{ flex: 1, textAlign: "left" }}>
-                  <h4>{prod.title || prod.name}</h4>
-                  <p>Precio: ${prod.price.toLocaleString("es-AR")}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <button onClick={() => decreaseQuantity(prod.id)}>-</button>
-                    <span>{prod.cantidad}</span>
-                    <button onClick={() => increaseQuantity(prod.id)}>+</button>
-                  </div>
-                  <p>Subtotal: ${(prod.price * prod.cantidad).toLocaleString("es-AR")}</p>
-                  <button onClick={() => removeItem(prod.id)}>Eliminar</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                Eliminar
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
 
+      <h4 className="text-end">Total a pagar: ${total().toLocaleString("es-AR")} ARS</h4>
 
-          <h3 style={{ marginTop: "2rem" }}>
-            Total: ${total().toLocaleString("es-AR")} ARS
-          </h3>
+      <div className="d-flex justify-content-end mb-4">
+        <button className="btn btn-warning me-2" onClick={clearCart}>
+          Vaciar carrito
+        </button>
+      </div>
 
-          <h4 style={{ marginTop: "2rem" }}>Datos del comprador</h4>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              confirmarCompra();
-            }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-              marginTop: "1rem",
-              backgroundColor: "#f9f9f9",
-              padding: "1rem",
-              borderRadius: "8px",
-              boxShadow: "0 0 8px rgba(0,0,0,0.05)",
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Nombre completo"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              disabled={loading}
-              required
-              style={{
-                padding: "0.8rem",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              required
-              style={{
-                padding: "0.8rem",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
-            />
-            <input
-              type="tel"
-              placeholder="Teléfono"
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
-              disabled={loading}
-              required
-              style={{
-                padding: "0.8rem",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                padding: "0.8rem",
-                border: "none",
-                backgroundColor: "#28a745",
-                color: "#fff",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
-              {loading ? "Procesando..." : "Confirmar compra"}
-            </button>
-          </form>
-
-          {error && (
-            <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>
-          )}
-
-          <button
-            onClick={clearCart}
-            style={{
-              marginTop: "1rem",
-              padding: "0.8rem",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            disabled={loading}
-          >
-            Vaciar carrito
-          </button>
-        </>
-      )}
+      <form onSubmit={handleSubmit} className="card p-4 mx-auto" style={{ maxWidth: "500px" }}>
+        <h5 className="mb-3">Completar datos para confirmar compra</h5>
+        <div className="mb-3">
+          <label htmlFor="nombre" className="form-label">Nombre:</label>
+          <input
+            type="text"
+            id="nombre"
+            className="form-control"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email:</label>
+          <input
+            type="email"
+            id="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <button className="btn btn-success w-100" type="submit">
+          Confirmar compra
+        </button>
+      </form>
     </div>
   );
 }

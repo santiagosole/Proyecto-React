@@ -7,20 +7,19 @@ export const CartProvider = ({ children }) => {
   const [stockMessage, setStockMessage] = useState("");
 
   const addToCart = (item, cantidad) => {
-    const itemExistente = cart.find(prod => prod.id === item.id);
-    const stockDisponible = item.stockQuantity || 0;
-
+    const itemExistente = cart.find((prod) => prod.id === item.id);
     const cantidadActual = itemExistente ? itemExistente.cantidad : 0;
+    const stockDisponible = item.stock || 0;
 
     if (cantidadActual + cantidad > stockDisponible) {
-      setStockMessage(`No hay stock suficiente para "${item.name || item.title}"`);
+      setStockMessage(`No hay stock suficiente para "${item.name || item.title}".`);
       return;
     }
 
     setStockMessage(""); 
 
     if (itemExistente) {
-      const cartActualizado = cart.map(prod =>
+      const cartActualizado = cart.map((prod) =>
         prod.id === item.id ? { ...prod, cantidad: prod.cantidad + cantidad } : prod
       );
       setCart(cartActualizado);
@@ -29,8 +28,9 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeItem = id => {
-    setCart(cart.filter(prod => prod.id !== id));
+  const removeItem = (id) => {
+    setCart(cart.filter((prod) => prod.id !== id));
+    setStockMessage(""); 
   };
 
   const clearCart = () => {
@@ -38,19 +38,18 @@ export const CartProvider = ({ children }) => {
     setStockMessage(""); 
   };
 
-  const totalQuantity = () => cart.reduce((acc, prod) => acc + prod.cantidad, 0);
+  const totalQuantity = () =>
+    cart.reduce((acc, prod) => acc + prod.cantidad, 0);
 
   const total = () =>
     cart.reduce((acc, prod) => acc + prod.price * prod.cantidad, 0);
 
   const increaseQuantity = (id) => {
-    const item = cart.find(prod => prod.id === id);
-    if (!item) return;
+    const producto = cart.find((prod) => prod.id === id);
+    const stockDisponible = producto?.stock || 0;
 
-    const stockDisponible = item.stockQuantity || 0;
-
-    if (item.cantidad + 1 > stockDisponible) {
-      setStockMessage(`No hay más stock de "${item.name || item.title}"`);
+    if (producto.cantidad + 1 > stockDisponible) {
+      setStockMessage(`No hay más stock disponible para "${producto.name || producto.title}".`);
       return;
     }
 
@@ -62,12 +61,17 @@ export const CartProvider = ({ children }) => {
   };
 
   const decreaseQuantity = (id) => {
+    const producto = cart.find((prod) => prod.id === id);
     const updatedCart = cart.map((prod) =>
       prod.id === id && prod.cantidad > 1
         ? { ...prod, cantidad: prod.cantidad - 1 }
         : prod
     );
     setCart(updatedCart);
+
+    if (producto && producto.cantidad - 1 < producto.stock) {
+      setStockMessage("");
+    }
   };
 
   return (
@@ -81,7 +85,8 @@ export const CartProvider = ({ children }) => {
         total,
         increaseQuantity,
         decreaseQuantity,
-        stockMessage, 
+        stockMessage,
+        setStockMessage,
       }}
     >
       {children}
