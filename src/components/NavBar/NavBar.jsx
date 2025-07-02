@@ -16,7 +16,7 @@ function NavBar() {
             alt="Logo"
             style={{ height: "50px", marginRight: "10px" }}
           />
-          Mi E-Commerce
+          Super E-Commerce
         </Link>
 
         <button
