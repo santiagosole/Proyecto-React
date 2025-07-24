@@ -1,12 +1,14 @@
-import { useEffect, useState, useContext } from "react";
-import { CartContext } from "../../context/CartContext";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import ItemCard from "../ItemCard/ItemCard";
 
-function ItemListContainer() {
+function ItemListContainer({ categoriaId }) {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useContext(CartContext);
+  const params = useParams();
+  const categoria = categoriaId || params.categoriaId || null;
 
   useEffect(() => {
     setLoading(true);
@@ -14,9 +16,14 @@ function ItemListContainer() {
     const db = getFirestore();
     const productosRef = collection(db, "items");
 
-    getDocs(productosRef)
+    let q = productosRef;
+    if (categoria) {
+      q = query(productosRef, where("category", "==", categoria));
+    }
+
+    getDocs(q)
       .then((querySnapshot) => {
-        const productosData = querySnapshot.docs.map(doc => ({
+        const productosData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -25,37 +32,19 @@ function ItemListContainer() {
       .catch((error) => {
         console.error("Error al cargar productos: ", error);
       })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+      .finally(() => setLoading(false));
+  }, [categoria]);
 
   if (loading) return <p>Cargando productos...</p>;
+
+  if (productos.length === 0)
+    return <p>No se encontraron productos en esta categoría.</p>;
 
   return (
     <div style={{ padding: "2rem" }}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
         {productos.map((prod) => (
-          <div
-            key={prod.id}
-            style={{
-              border: "1px solid #ccc",
-              padding: "1rem",
-              width: "200px",
-              textAlign: "center",
-              borderRadius: "8px",
-              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-            }}
-          >
-            <img
-              src={prod.imageUrl}
-              alt={prod.name}
-              style={{ width: "100%", height: "auto" }}
-            />
-            <h4>{prod.name}</h4>
-            <p>${prod.price}</p>
-            <button onClick={() => addToCart(prod, 1)}>Agregar al carrito</button>
-          </div>
+          <ItemCard key={prod.id} producto={prod} />
         ))}
       </div>
     </div>

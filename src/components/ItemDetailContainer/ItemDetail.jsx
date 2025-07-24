@@ -1,5 +1,3 @@
-import React from "react";
-
 function ItemDetail({ producto, agregarAlCarrito }) {
   return (
     <div className="container my-5 text-center">

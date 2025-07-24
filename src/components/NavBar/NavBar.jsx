@@ -1,52 +1,92 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
-import logo from "../../assets/logo.jpg";
-import { CartContext } from "../../context/CartContext";
-import CartWidget from "../CartWidget/CartWidget";
+import { NavLink } from "react-router-dom";
 
 function NavBar() {
-  const { totalQuantity } = useContext(CartContext);
-
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
-      <div className="container">
-        <Link className="navbar-brand d-flex align-items-center" to="/">
-          <img
-            src={logo}
-            alt="Logo"
-            style={{ height: "50px", marginRight: "10px" }}
-          />
-          Super E-Commerce
-        </Link>
+    <nav
+      style={{
+        backgroundColor: "#222",
+        padding: "1rem",
+        display: "flex",
+        gap: "1.5rem",
+        justifyContent: "center",
+      }}
+    >
+      <NavLink
+        to="/"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Inicio
+      </NavLink>
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span className="navbar-toggler-icon" />
-        </button>
+      <NavLink
+        to="/productos"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Todos los productos
+      </NavLink>
 
-        <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul className="navbar-nav align-items-center">
-            <li className="nav-item">
-              <Link className="nav-link" to="/">Inicio</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/productos">Productos</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/contacto">Contacto</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center" to="/cart">
-                🛒 <span className="ms-1">({totalQuantity()})</span>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <NavLink
+        to="/categoria/zapatillas"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Zapatillas
+      </NavLink>
+
+      <NavLink
+        to="/categoria/ropa"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Ropa
+      </NavLink>
+
+      <NavLink
+        to="/categoria/accesorios"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Accesorios
+      </NavLink>
+
+      <NavLink
+        to="/contacto"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Contacto
+      </NavLink>
+
+      <NavLink
+        to="/cart"
+        style={({ isActive }) => ({
+          color: isActive ? "yellow" : "white",
+          textDecoration: "none",
+          fontWeight: "bold",
+        })}
+      >
+        Carrito
+      </NavLink>
     </nav>
   );
 }
