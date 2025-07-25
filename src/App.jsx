@@ -8,6 +8,8 @@ import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
 import Footer from "./components/Footer/Footer";
 import Agregar from "./components/Agregar";
+import BorrarItems from "./components/BorrarItems";
+
 
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
         <Route path="/item/:id" element={<ItemDetailContainer />} />
         <Route path="/categoria/:categoriaId" element={<ItemListContainer />} />
         <Route path="/agregar-productos" element={<Agregar />} />
+        <Route path="/borrar-items" element={<BorrarItems />} />
+
       </Routes>
       <Footer />
     </CartProvider>
