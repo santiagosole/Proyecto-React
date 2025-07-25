@@ -1,76 +1,76 @@
-import { useState } from "react";
-import { db } from "../firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
-const productosIniciales = [
-  {
-    name: "Zapatilla Nike Air",
-    price: 25000,
-    imageUrl: "https://via.placeholder.com/150",
-    category: "zapatillas",
-  },
-  {
-    name: "Zapatilla Adidas Run",
-    price: 21000,
-    imageUrl: "https://via.placeholder.com/150",
-    category: "zapatillas",
-  },
-  {
-    name: "Remera Puma DryFit",
-    price: 8500,
-    imageUrl: "https://via.placeholder.com/150",
-    category: "ropa",
-  },
-  {
-    name: "Campera North Face",
-    price: 48000,
-    imageUrl: "https://via.placeholder.com/150",
-    category: "ropa",
-  },
-  {
-    name: "Mochila Reebok Training",
-    price: 17000,
-    imageUrl: "https://via.placeholder.com/150",
-    category: "accesorios",
-  },
-];
-
-const categoriasIniciales = [
-  { name: "zapatillas" },
-  { name: "ropa" },
-  { name: "accesorios" },
-];
+import { useEffect } from "react";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 function Agregar() {
-  const [mensaje, setMensaje] = useState("");
+  useEffect(() => {
+    const hasAdded = localStorage.getItem("productosAgregados");
+    if (hasAdded) return;
 
-  const subirDatos = async () => {
-    try {
-      const productosRef = collection(db, "productos");
-      const categoriasRef = collection(db, "categorias");
+    const db = getFirestore();
+    const itemsRef = collection(db, "items");
 
-      for (const producto of productosIniciales) {
-        await addDoc(productosRef, producto);
-      }
+   const nuevosProductos = [
+  {
+    name: "Zapatillas Nike Air Max",
+    price: 32000,
+    category: "zapatillas",
+    imageUrl: "https://picsum.photos/seed/nikeairmax/300/300",
+    description: "Zapatillas cómodas para uso diario.",
+    stock: 12,
+  },
+  {
+    name: "Zapatillas Puma Running",
+    price: 29000,
+    category: "zapatillas",
+    imageUrl: "https://picsum.photos/seed/pumarunning/300/300",
+    description: "Ideales para correr o caminar.",
+    stock: 10,
+  },
+  {
+    name: "Remera Adidas Clásica",
+    price: 15000,
+    category: "ropa",
+    imageUrl: "https://picsum.photos/seed/adidasrem/300/300",
+    description: "Remera cómoda y liviana.",
+    stock: 20,
+  },
+  {
+    name: "Campera Nike Deportiva",
+    price: 38000,
+    category: "ropa",
+    imageUrl: "https://picsum.photos/seed/nikecampera/300/300",
+    description: "Campera de abrigo con cierre.",
+    stock: 8,
+  },
+  {
+    name: "Gorra Vans",
+    price: 9000,
+    category: "accesorios",
+    imageUrl: "https://picsum.photos/seed/vansgorra/300/300",
+    description: "Gorra clásica con visera curva.",
+    stock: 25,
+  },
+  {
+    name: "Mochila Adidas",
+    price: 18000,
+    category: "accesorios",
+    imageUrl: "https://picsum.photos/seed/adidassmochila/300/300",
+    description: "Ideal para la escuela o el gimnasio.",
+    stock: 14,
+  },
+];
 
-      for (const categoria of categoriasIniciales) {
-        await addDoc(categoriasRef, categoria);
-      }
 
-      setMensaje("✅ ¡Productos y categorías subidos con éxito!");
-    } catch (error) {
-      setMensaje("❌ Error al subir: " + error.message);
-    }
-  };
+    nuevosProductos.forEach(async (producto) => {
+      await addDoc(itemsRef, producto);
+    });
 
-  return (
-    <div className="container my-5 text-center">
-      <h2 className="mb-4">Cargar datos a Firestore</h2>
-      <button className="btn btn-primary" onClick={subirDatos}>
-        Subir productos y categorías
-      </button>
-      {mensaje && <p className="mt-3">{mensaje}</p>}
-    </div>
-  );
+    localStorage.setItem("productosAgregados", "true");
+
+    alert("Productos agregados correctamente. Ahora podés comentar o quitar esta ruta para evitar agregar de nuevo.");
+  }, []);
+
+  return <p className="text-center mt-5">⏳ Agregando productos a Firestore...</p>;
 }
 
 export default Agregar;
