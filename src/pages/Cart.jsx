@@ -29,10 +29,12 @@ function Cart() {
       return;
     }
 
+    const totalPagado = total();
+
     const order = {
       buyer,
       items: cart,
-      total: total(),
+      total: totalPagado,
       date: new Date(),
     };
 
@@ -41,7 +43,7 @@ function Cart() {
     addDoc(ventasRef, order)
       .then((doc) => {
         setOrderId(doc.id);
-        setOrderDetails(cart); 
+        setOrderDetails({ items: cart, total: totalPagado });
         clearCart();
         setShowResumen(true);
       })
@@ -169,13 +171,18 @@ function Cart() {
           <hr />
           <h5>Resumen de productos:</h5>
           {orderDetails && (
-            <ul className="list-group">
-              {orderDetails.map((prod, idx) => (
-                <li key={idx} className="list-group-item">
-                  {prod.name} x{prod.cantidad} = ${prod.price * prod.cantidad}
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="list-group mb-3">
+                {orderDetails.items.map((prod, idx) => (
+                  <li key={idx} className="list-group-item">
+                    {prod.name} x{prod.cantidad} = ${prod.price * prod.cantidad}
+                  </li>
+                ))}
+              </ul>
+              <p className="fw-bold fs-5">
+                💰 Total pagado: ${orderDetails.total.toLocaleString("es-AR")}
+              </p>
+            </>
           )}
         </div>
       )}
