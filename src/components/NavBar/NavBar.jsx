@@ -1,6 +1,12 @@
 import { NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { CartContext } from "../../context/CartContext";
 
 function NavBar() {
+  const { cart } = useContext(CartContext);
+
+  const totalItems = cart.reduce((acc, item) => acc + item.cantidad, 0);
+
   return (
     <nav
       style={{
@@ -85,7 +91,7 @@ function NavBar() {
           fontWeight: "bold",
         })}
       >
-        Carrito
+        🛒 {totalItems > 0 && <span>({totalItems})</span>}
       </NavLink>
     </nav>
   );
